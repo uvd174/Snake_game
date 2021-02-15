@@ -74,10 +74,10 @@ struct PortalPair {
                                                 const int field_height,
                                                 const Fruit fruit) {
         while (true) {
-            x1 = rand() % field_height;
-            y1 = rand() % field_width;
-            x2 = rand() % field_height;
-            y2 = rand() % field_width;
+            x1 = std::rand() % field_height;
+            y1 = std::rand() % field_width;
+            x2 = std::rand() % field_height;
+            y2 = std::rand() % field_width;
             if (game_matr[x1][y1] == 0 &&
                 game_matr[x2][y2] == 0 &&
                 !(x1 == x2 && y1 == y2) &&
@@ -93,8 +93,8 @@ void Fruit::GenerateNewOne(int game_matr[15][30],
                            const int field_height,
                            const PortalPair portal_pair) {
     while (true) {
-        x = rand() % field_height;
-        y = rand() % field_width;
+        x = std::rand() % field_height;
+        y = std::rand() % field_width;
         if (game_matr[x][y] == 0 &&
             !(x == portal_pair.x1 && y == portal_pair.y1) &&
             !(x == portal_pair.x2 && y == portal_pair.y2))
@@ -116,7 +116,7 @@ inline void UpdateTimer(sf::Text &timer, int time_in_sec) {
 
 
 int main() {
-    srand(time(NULL));
+    std::srand(time(NULL));
 
     int const WINDOW_WIDTH = 1920;
     int const WINDOW_HEIGHT = 1080;
@@ -346,7 +346,7 @@ int main() {
                 portal_pair = PortalPair(-1, -1, -1, -1);
                 portal_state = inactive;
                 portal_clock.restart();
-                portal_clock_threshold = 5 + rand() % 6;
+                portal_clock_threshold = 5 + std::rand() % 6;
             }
 
             if (snake.x == portal_pair.x1 && snake.y == portal_pair.y1) {
