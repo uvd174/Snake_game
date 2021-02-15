@@ -13,25 +13,51 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-std=c++14" />
+					<Add option="-DSFML_STATIC" />
+					<Add directory="SFML-2.5.1/include" />
 				</Compiler>
+				<ResourceCompiler>
+					<Add directory="resources" />
+				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-static" />
+					<Add library="sfml-graphics-s" />
+					<Add library="sfml-window-s" />
+					<Add library="sfml-system-s" />
+					<Add library="opengl32" />
+					<Add library="freetype" />
+					<Add library="winmm" />
+					<Add library="gdi32" />
+					<Add directory="SFML-2.5.1/lib" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add directory="C:/Users/HP/Desktop/SFML-2.5.1/include" />
+			<Add option="-std=c++11" />
+			<Add option="-DSFML_STATIC" />
+			<Add directory="SFML-2.5.1/include" />
 		</Compiler>
 		<Linker>
-			<Add library="sfml-graphics" />
-			<Add library="sfml-audio" />
-			<Add library="sfml-network" />
-			<Add library="sfml-window" />
-			<Add library="sfml-system" />
-			<Add directory="C:/Users/HP/Desktop/SFML-2.5.1/lib" />
+			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
+			<Add option="-static" />
+			<Add directory="SFML-2.5.1/lib" />
 		</Linker>
+		<Unit filename="file.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 		<Unit filename="main.cpp" />
+		<Unit filename="resources/fruit_tile.png" />
+		<Unit filename="resources/portal_snake_tile.png" />
+		<Unit filename="resources/portal_tile.png" />
+		<Unit filename="resources/sansation.ttf" />
+		<Unit filename="resources/snake_tile.png" />
+		<Unit filename="resources/tile.png" />
 		<Extensions>
 			<code_completion />
 			<envvars />

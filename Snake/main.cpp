@@ -7,6 +7,7 @@ enum Direction {right, up, left, down};
 
 enum PortalState {snake_in = 0, active = -1, inactive = -2};
 
+
 struct Snake {
     Snake(int x_, int y_) : x(x_), y(y_), length(3), direction(right) {}
     int x, y;
@@ -88,6 +89,7 @@ struct PortalPair {
     }
 };
 
+
 void Fruit::GenerateNewOne(int game_matr[15][30],
                            const int field_width,
                            const int field_height,
@@ -145,7 +147,6 @@ int main() {
         return EXIT_FAILURE;
     }
 
-
     int timer = 0;
     sf::Text timer_text;
     timer_text.setFont(snake_font);
@@ -162,7 +163,6 @@ int main() {
     score_text.setPosition(WINDOW_WIDTH * 3.5 / 5, 0);
     score_text.setFillColor(sf::Color::Black);
     score_text.setString("Score: 0");
-
 
     int const FIELD_HEIGHT = 15;
     int const FIELD_WIDTH = 30;
@@ -285,6 +285,9 @@ int main() {
                                 game_over = false;
                             }
                             break;
+                        case sf::Keyboard::Escape:
+                            window.close();
+                            break;
                         default:
                             break;
                     }
@@ -314,10 +317,16 @@ int main() {
 
             snake.UpdateDirection(user_direction);
             snake.Move(FIELD_WIDTH, FIELD_HEIGHT);
+
+            if (game_matrix[snake.x][snake.y] > 0) {
+                game_over = true;
+            }
+
             if (snake.x == fruit.x && snake.y == fruit.y) {
                 snake.length++;
                 score_text.setString("Score: " +
                                      std::to_string(snake.length - 3));
+                game_matrix[snake.x][snake.y] = snake.length;
                 fruit.GenerateNewOne(game_matrix, FIELD_WIDTH, FIELD_HEIGHT,
                                      portal_pair);
             } else {
@@ -325,9 +334,7 @@ int main() {
                     for (int j = 0; j < FIELD_WIDTH; ++j) {
                         game_matrix[i][j] = std::max(0, game_matrix[i][j] - 1);
                     }
-            }
-            if (game_matrix[snake.x][snake.y] > 0) {
-                game_over = true;
+                game_matrix[snake.x][snake.y] = snake.length;
             }
 
             if (portal_state == inactive &&
@@ -353,13 +360,13 @@ int main() {
                 snake.x = portal_pair.x2;
                 snake.y = portal_pair.y2;
                 portal_state = snake_in;
+
             } else if (snake.x == portal_pair.x2 &&
                        snake.y == portal_pair.y2) {
                 snake.x = portal_pair.x1;
                 snake.y = portal_pair.y1;
                 portal_state = snake_in;
             }
-            game_matrix[snake.x][snake.y] = snake.length;
         }
 
         for (int i = 0; i < FIELD_HEIGHT; ++i)
