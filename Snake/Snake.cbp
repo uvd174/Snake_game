@@ -48,9 +48,6 @@
 			<Add option="-static" />
 			<Add directory="SFML-2.5.1/lib" />
 		</Linker>
-		<Unit filename="file.rc">
-			<Option compilerVar="WINDRES" />
-		</Unit>
 		<Unit filename="main.cpp" />
 		<Unit filename="resources/fruit_tile.png" />
 		<Unit filename="resources/portal_snake_tile.png" />

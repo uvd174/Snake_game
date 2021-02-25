@@ -1,8 +1,9 @@
 # depslib dependency file v1.0
-1613423520 source:c:\users\hp\desktop\snake\main.cpp
+1614224686 source:c:\users\hp\desktop\snake\main.cpp
 	<SFML/Graphics.hpp>
 	<string>
 	<random>
+	"SnakeClasses.hpp"
 
 1525812018 c:\users\hp\desktop\sfml-2.5.1\include\sfml\graphics.hpp
 	<SFML/Window.hpp>
@@ -927,4 +928,22 @@
 	<SFML/Window/GlResource.hpp>
 
 1613384570 source:c:\users\hp\desktop\snake\file.rc
+
+1614223878 source:c:\users\hp\desktop\snake\src\classes.cpp
+	<random>
+	<vector>
+	"Classes.hpp"
+
+1614223890 c:\users\hp\desktop\snake\include\classes.hpp
+	<vector>
+
+1614223890 c:\users\hp\desktop\snake\include\snakeclasses.hpp
+	<vector>
+
+1614224555 source:c:\users\hp\desktop\snake\src\guiclasses.cpp
+
+1614224901 source:c:\users\hp\desktop\snake\src\snakeclasses.cpp
+	<random>
+	<vector>
+	"SnakeClasses.hpp"
 

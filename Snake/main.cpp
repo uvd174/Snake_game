@@ -2,107 +2,7 @@
 #include <string>
 #include <random>
 
-
-enum Direction {right, up, left, down};
-
-enum PortalState {snake_in = 0, active = -1, inactive = -2};
-
-
-struct Snake {
-    Snake(int x_, int y_) : x(x_), y(y_), length(3), direction(right) {}
-    int x, y;
-    int length;
-    Direction direction;
-
-    void Move(int field_width, int field_height) {
-        switch (direction) {
-            case right:
-                y = (y + 1) % field_width;
-                break;
-
-            case up:
-                x = (x == 0) ? (field_height - 1) : (x - 1);
-                break;
-
-            case left:
-                y = (y == 0) ? (field_width - 1) : (y - 1);
-                break;
-
-            case down:
-                x = (x + 1) % field_height;
-                break;
-        }
-    }
-
-    void UpdateDirection(Direction dir) {
-        switch (dir) {
-            case right:
-                direction = (direction == left) ? direction : dir;
-                break;
-
-            case up:
-                direction = (direction == down) ? direction : dir;
-                break;
-
-            case left:
-                direction = (direction == right) ? direction : dir;
-                break;
-
-            case down:
-                direction = (direction == up) ? direction : dir;
-                break;
-        }
-    }
-};
-
-
-struct PortalPair;
-
-struct Fruit {
-    Fruit(int x_, int y_) : x(x_), y(y_) {}
-    int x, y;
-    void GenerateNewOne(int game_matr[15][30], const int field_width,
-                        const int field_height, const PortalPair portal_pair);
-};
-
-
-struct PortalPair {
-    PortalPair(int x1_, int y1_, int x2_, int y2_) : x1(x1_), y1(y1_),
-                                                     x2(x2_), y2(y2_) {}
-    int x1, y1, x2, y2;
-
-    void GenerateNewPair(int game_matr[15][30], const int field_width,
-                                                const int field_height,
-                                                const Fruit fruit) {
-        while (true) {
-            x1 = std::rand() % field_height;
-            y1 = std::rand() % field_width;
-            x2 = std::rand() % field_height;
-            y2 = std::rand() % field_width;
-            if (game_matr[x1][y1] == 0 &&
-                game_matr[x2][y2] == 0 &&
-                !(x1 == x2 && y1 == y2) &&
-                !(x1 == fruit.x && y1 == fruit.y) &&
-                !(x2 == fruit.x && y2 == fruit.y))
-                return;
-        }
-    }
-};
-
-
-void Fruit::GenerateNewOne(int game_matr[15][30],
-                           const int field_width,
-                           const int field_height,
-                           const PortalPair portal_pair) {
-    while (true) {
-        x = std::rand() % field_height;
-        y = std::rand() % field_width;
-        if (game_matr[x][y] == 0 &&
-            !(x == portal_pair.x1 && y == portal_pair.y1) &&
-            !(x == portal_pair.x2 && y == portal_pair.y2))
-            return;
-    }
-}
+#include "SnakeClasses.hpp"
 
 
 inline void UpdateTimer(sf::Text &timer, int time_in_sec) {
@@ -118,7 +18,8 @@ inline void UpdateTimer(sf::Text &timer, int time_in_sec) {
 
 
 int main() {
-    std::srand(time(NULL));
+    srand(time(NULL));
+
 
     int const WINDOW_WIDTH = 1920;
     int const WINDOW_HEIGHT = 1080;
@@ -130,6 +31,7 @@ int main() {
                             "Snake", sf::Style::Default, settings);
     window.setVerticalSyncEnabled(true);
     window.setKeyRepeatEnabled(false);
+
 
     sf::RectangleShape background(sf::Vector2f(WINDOW_WIDTH, WINDOW_HEIGHT));
     background.setFillColor(sf::Color(255, 255, 255));
@@ -147,7 +49,6 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    int timer = 0;
     sf::Text timer_text;
     timer_text.setFont(snake_font);
     timer_text.setCharacterSize(WINDOW_WIDTH / 20);
@@ -167,20 +68,16 @@ int main() {
     int const FIELD_HEIGHT = 15;
     int const FIELD_WIDTH = 30;
 
-    int game_matrix[FIELD_HEIGHT][FIELD_WIDTH] = {0};
-    game_matrix[7][1] = 1;
-    game_matrix[7][2] = 2;
-    game_matrix[7][3] = 3;
+    Game game(FIELD_HEIGHT, FIELD_WIDTH);
+    game.NewGame();
 
     Snake snake = Snake(7, 3);
-    Direction user_direction = snake.direction;
+    Snake::Direction user_direction = snake.direction;
 
     Fruit fruit = Fruit(7, 27);
 
     PortalPair portal_pair = PortalPair(7, 10, 7, 20);
-    int portal_state = active;
-
-    bool game_over = false;
+    int portal_state = PortalPair::active;
 
 
     sf::Texture tile_texture;
@@ -235,37 +132,32 @@ int main() {
                 case sf::Event::KeyPressed: {
                     switch (event.key.code) {
                         case sf::Keyboard::W:
-                            user_direction = up;
+                            user_direction = Snake::up;
                             break;
                         case sf::Keyboard::A:
-                            user_direction = left;
+                            user_direction = Snake::left;
                             break;
                         case sf::Keyboard::S:
-                            user_direction = down;
+                            user_direction = Snake::down;
                             break;
                         case sf::Keyboard::D:
-                            user_direction = right;
+                            user_direction = Snake::right;
                             break;
                         case sf::Keyboard::Up:
-                            user_direction = up;
+                            user_direction = Snake::up;
                             break;
                         case sf::Keyboard::Left:
-                            user_direction = left;
+                            user_direction = Snake::left;
                             break;
                         case sf::Keyboard::Down:
-                            user_direction = down;
+                            user_direction = Snake::down;
                             break;
                         case sf::Keyboard::Right:
-                            user_direction = right;
+                            user_direction = Snake::right;
                             break;
                         case sf::Keyboard::Space:
-                            if (game_over) {
-                                for (int i = 0; i < FIELD_HEIGHT; ++i)
-                                    for (int j = 0; j < FIELD_WIDTH; ++j)
-                                        game_matrix[i][j] = 0;
-                                game_matrix[7][1] = 1;
-                                game_matrix[7][2] = 2;
-                                game_matrix[7][3] = 3;
+                            if (game.is_over()) {
+                                game.NewGame();
 
                                 snake = Snake(7, 3);
                                 snake_clock.restart();
@@ -274,15 +166,12 @@ int main() {
                                 fruit = Fruit(7, 27);
 
                                 portal_pair = PortalPair(7, 10, 7, 20);
-                                portal_state = active;
+                                portal_state = PortalPair::active;
 
-                                timer = 0;
                                 timer_clock.restart();
                                 timer_text.setString("00:00");
 
                                 score_text.setString("Score: 0");
-
-                                game_over = false;
                             }
                             break;
                         case sf::Keyboard::Escape:
@@ -303,75 +192,70 @@ int main() {
 
         window.draw(background);
         window.draw(playground);
-        if (!game_over &&
+        if (!game.is_over() &&
             timer_clock.getElapsedTime().asMilliseconds() > 1000) {
 
             timer_clock.restart();
-            UpdateTimer(timer_text, ++timer);
+            UpdateTimer(timer_text, game.sec_passed());
         }
 
-        if (!game_over &&
+        if (!game.is_over() &&
             snake_clock.getElapsedTime().asMilliseconds() > 100) {
 
             snake_clock.restart();
 
             snake.UpdateDirection(user_direction);
-            snake.Move(FIELD_WIDTH, FIELD_HEIGHT);
+            snake.Move(game.field);
 
-            if (game_matrix[snake.x][snake.y] > 0) {
-                game_over = true;
+            if (game.field.at(snake.position()) > 0) {
+                game.GameOver();
             }
 
-            if (snake.x == fruit.x && snake.y == fruit.y) {
-                snake.length++;
+            if (snake.position() == fruit.position()) {
+                snake.Grow();
                 score_text.setString("Score: " +
-                                     std::to_string(snake.length - 3));
-                game_matrix[snake.x][snake.y] = snake.length;
-                fruit.GenerateNewOne(game_matrix, FIELD_WIDTH, FIELD_HEIGHT,
-                                     portal_pair);
+                                     std::to_string(snake.get_length() - 3));
+                game.field.set(snake.position(), snake.get_length());
+                fruit.GenerateNewOne(game.field, portal_pair);
             } else {
-                for (int i = 0; i < FIELD_HEIGHT; ++i)
-                    for (int j = 0; j < FIELD_WIDTH; ++j) {
-                        game_matrix[i][j] = std::max(0, game_matrix[i][j] - 1);
+                for (int i = 0; i < game.field.get_height(); ++i)
+                    for (int j = 0; j < game.field.get_width(); ++j) {
+                        game.field.set(i, j, std::max(0, game.field.at(i, j) - 1));
                     }
-                game_matrix[snake.x][snake.y] = snake.length;
+                game.field.set(snake.position(), snake.get_length());
             }
 
-            if (portal_state == inactive &&
+            if (portal_state == PortalPair::inactive &&
                 portal_clock.getElapsedTime()
                             .asSeconds() > portal_clock_threshold) {
-                portal_state = active;
-                portal_pair.GenerateNewPair(game_matrix, FIELD_WIDTH,
-                                                         FIELD_HEIGHT, fruit);
+                portal_state = PortalPair::active;
+                portal_pair.GenerateNewPair(game.field, fruit);
             }
 
-            if (portal_state >= snake_in ) {
+            if (portal_state >= PortalPair::snake_in ) {
                 portal_state++;
             }
 
-            if (portal_state == snake.length) {
+            if (portal_state == snake.get_length()) {
                 portal_pair = PortalPair(-1, -1, -1, -1);
-                portal_state = inactive;
+                portal_state = PortalPair::inactive;
                 portal_clock.restart();
                 portal_clock_threshold = 5 + std::rand() % 6;
             }
 
-            if (snake.x == portal_pair.x1 && snake.y == portal_pair.y1) {
-                snake.x = portal_pair.x2;
-                snake.y = portal_pair.y2;
-                portal_state = snake_in;
+            if (snake.position() == portal_pair.first_position()) {
+                snake.Teleport(portal_pair.second_position());
+                portal_state = PortalPair::snake_in;
 
-            } else if (snake.x == portal_pair.x2 &&
-                       snake.y == portal_pair.y2) {
-                snake.x = portal_pair.x1;
-                snake.y = portal_pair.y1;
-                portal_state = snake_in;
+            } else if (snake.position() == portal_pair.second_position()) {
+                snake.Teleport(portal_pair.first_position());
+                portal_state = PortalPair::snake_in;
             }
         }
 
-        for (int i = 0; i < FIELD_HEIGHT; ++i)
-            for (int j = 0; j < FIELD_WIDTH; ++j) {
-                if (game_matrix[i][j] > 0) {
+        for (int i = 0; i < game.field.get_height(); ++i)
+            for (int j = 0; j < game.field.get_width(); ++j) {
+                if (game.field.at(i, j) > 0) {
                     sf::Sprite snake_tile;
                     snake_tile.setTexture(snake_tile_texture);
                     snake_tile.setPosition(playground.getPosition());
@@ -383,27 +267,28 @@ int main() {
         sf::Sprite fruit_tile;
         fruit_tile.setTexture(fruit_tile_texture);
         fruit_tile.setPosition(playground.getPosition());
-        fruit_tile.move(TEXTURE_HEIGHT * fruit.y, TEXTURE_WIDTH * fruit.x);
+        fruit_tile.move(TEXTURE_HEIGHT * fruit.position().y,
+                        TEXTURE_WIDTH * fruit.position().x);
         window.draw(fruit_tile);
 
-        if (portal_state != inactive) {
+        if (portal_state != PortalPair::inactive) {
             sf::Sprite portal_tile1, portal_tile2;
-            if (game_matrix[portal_pair.x1][portal_pair.y1] == 0) {
+            if (game.field.at(portal_pair.first_position()) == 0) {
                 portal_tile1.setTexture(portal_tile_texture);
             } else {
                 portal_tile1.setTexture(portal_snake_tile_texture);
             }
-            if (game_matrix[portal_pair.x2][portal_pair.y2] == 0) {
+            if (game.field.at(portal_pair.second_position()) == 0) {
                 portal_tile2.setTexture(portal_tile_texture);
             } else {
                 portal_tile2.setTexture(portal_snake_tile_texture);
             }
             portal_tile1.setPosition(playground.getPosition());
             portal_tile2.setPosition(playground.getPosition());
-            portal_tile1.move(TEXTURE_HEIGHT * portal_pair.y1,
-                              TEXTURE_WIDTH  * portal_pair.x1);
-            portal_tile2.move(TEXTURE_HEIGHT * portal_pair.y2,
-                              TEXTURE_WIDTH  * portal_pair.x2);
+            portal_tile1.move(TEXTURE_HEIGHT * portal_pair.first_position().y,
+                              TEXTURE_WIDTH  * portal_pair.first_position().x);
+            portal_tile2.move(TEXTURE_HEIGHT * portal_pair.second_position().y,
+                              TEXTURE_WIDTH  * portal_pair.second_position().x);
             window.draw(portal_tile1);
             window.draw(portal_tile2);
         }
@@ -412,7 +297,7 @@ int main() {
         window.draw(timer_text);
         window.draw(score_text);
 
-        if (game_over) {
+        if (game.is_over()) {
             int const GAME_OVER_WIDTH = 700;
             int const GAME_OVER_HEIGHT = 250;
             sf::RectangleShape game_over_box(sf::Vector2f(GAME_OVER_WIDTH,
